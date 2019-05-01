@@ -1,0 +1,14 @@
+branch: master
+plugins:
+  - '@semantic-release/commit-analyzer'
+  - '@semantic-release/release-notes-generator'
+  - '@semantic-release/github'
+
+gradle:
+  node:
+    download: false # download a node dist and use it
+    distUrl: https://nodejs.org/dist # dist download root url (default)
+    packages: # extra packages needed in semantic-release plugins
+      - '@semantic-release/commit-analyzer'
+      - '@semantic-release/release-notes-generator'
+      - '@semantic-release/github'

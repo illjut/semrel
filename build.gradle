@@ -1,0 +1,80 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    jcenter()
+  }
+
+  dependencies {
+    classpath "de.illjut.gradle:semrel:1.0.0"
+    classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+  }
+}
+
+plugins {
+  id 'java-gradle-plugin'
+  id 'groovy'
+  id 'maven-publish'
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+
+if ( project.findProperty("test") == "true") {
+apply plugin: 'de.illjut.gradle.semrel'
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies { 
+  gradleApi()
+  localGroovy()
+
+  compile "org.yaml:snakeyaml:1.24"
+  compile "org.apache.commons:commons-compress:1.18"
+  compile "org.ajoberstar.grgit:grgit-core:3.1.1"
+}
+
+group = 'de.illjut.gradle'
+version = '1.0.0'
+
+gradlePlugin {
+  plugins {
+    semanticReleasePlugin {
+      id = 'de.illjut.gradle.semrel'
+      implementationClass = 'de.illjut.gradle.semrel.SemrelPlugin'
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenPublication(MavenPublication) {
+      artifact jar
+      groupId project.group
+      artifactId 'semrel'
+      version project.version
+    }
+  }
+}
+
+bintray {
+  user = project.findProperty("bintray.user") ?: 'a'
+  key = project.findProperty("bintray.apikey") ?: 'a'
+  publications = [ 'mavenPublication' ]
+  dryRun = true
+
+  pkg {
+    repo = 'semrel'
+    name = 'semrel'
+    userOrg = 'illjut'
+    licenses = ['']
+    vcsUrl = 'https://github.com/illjut/semrel.git'
+    version {
+      name = project.version
+      released  = new Date()
+      vcsTag = project.version
+    }
+  }
+}
