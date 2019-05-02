@@ -1,11 +1,12 @@
 buildscript {
   repositories {
-    mavenLocal()
     jcenter()
+    maven { url 'https://dl.bintray.com/illjut/maven' }
+    //mavenLocal()
   }
 
   dependencies {
-    classpath "de.illjut.gradle:semrel:1.0.0"
+    classpath group: 'de.illjut.gradle', name: 'semrel', version: '0.0.2'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
   }
 }
@@ -17,19 +18,15 @@ plugins {
 }
 
 apply plugin: 'com.jfrog.bintray'
-
-
-if ( project.findProperty("test") == "true") {
 apply plugin: 'de.illjut.gradle.semrel'
-}
 
 repositories {
   jcenter()
 }
 
 dependencies { 
-  gradleApi()
-  localGroovy()
+  implementation gradleApi()
+  implementation localGroovy()
 
   compile "org.yaml:snakeyaml:1.24"
   compile "org.apache.commons:commons-compress:1.18"
@@ -37,7 +34,7 @@ dependencies {
 }
 
 group = 'de.illjut.gradle'
-version = '1.0.0'
+version = '0.0.2'
 
 gradlePlugin {
   plugins {
@@ -48,33 +45,31 @@ gradlePlugin {
   }
 }
 
-publishing {
-  publications {
-    mavenPublication(MavenPublication) {
-      artifact jar
-      groupId project.group
-      artifactId 'semrel'
-      version project.version
-    }
-  }
-}
-
 bintray {
-  user = project.findProperty("bintray.user") ?: 'a'
-  key = project.findProperty("bintray.apikey") ?: 'a'
-  publications = [ 'mavenPublication' ]
-  dryRun = true
+  user = project.findProperty("bintray.user") ?: System.getenv('BINTRAY_USER')
+  key = project.findProperty("bintray.apikey") ?: System.getenv('BINTRAY_API_KEY')
+  publications = [ 'pluginMaven' ]
+  dryRun = false
 
   pkg {
-    repo = 'semrel'
+    repo = 'maven'
     name = 'semrel'
     userOrg = 'illjut'
-    licenses = ['']
+    licenses = ['GPL-3.0']
     vcsUrl = 'https://github.com/illjut/semrel.git'
+    issueTrackerUrl = 'https://github.com/illjut/semrel/issues'
     version {
       name = project.version
       released  = new Date()
       vcsTag = project.version
+      gpg {
+        sign = false
+      }
     }
   }
 }
+
+
+//project.tasks.release.onlyIf { project.version != null && project.version != 'unspecified' }
+
+//project.tasks.bintrayUpload.dependsOn "release"
