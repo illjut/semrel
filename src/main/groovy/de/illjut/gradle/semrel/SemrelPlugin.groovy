@@ -114,26 +114,24 @@ class SemrelPlugin implements Plugin<Project> {
       project.logger.quiet "Inferred version: ${project.version}"
     }
 
-    project.afterEvaluate {
-      project.tasks.register('release') {
-        description "Runs semantic-relase on the root project"
-        group GROUP_NAME
+    project.tasks.register('release') {
+      description "Runs semantic-relase on the root project"
+      group GROUP_NAME
 
-        doLast {
-          def extraPackages = ["semantic-release@v${semanticReleaseVersion}".toString()]
-          extraPackages.addAll config.packages
+      doLast {
+        def extraPackages = ["semantic-release@v${semanticReleaseVersion}".toString()]
+        extraPackages.addAll config.packages
 
-          def result = node.executeNpx([
-              'semantic-release'
-            ],
-            extraPackages,
-            project.rootProject.projectDir
-          )
+        def result = node.executeNpx([
+            'semantic-release'
+          ],
+          extraPackages,
+          project.rootProject.projectDir
+        )
 
-          project.logger.info "semantic-release exited with {}", result.exitCode
-          if(result.exitCode != 0) {
-            throw new GradleScriptException("Release failed.", new Exception("semantic-release did not exit successfully. See log above (use -i)."));
-          }
+        project.logger.info "semantic-release exited with {}", result.exitCode
+        if(result.exitCode != 0) {
+          throw new GradleScriptException("Release failed.", new Exception("semantic-release did not exit successfully. See log above (use -i)."));
         }
       }
     }
