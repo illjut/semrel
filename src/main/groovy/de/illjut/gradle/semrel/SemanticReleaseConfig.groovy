@@ -9,6 +9,7 @@ import org.gradle.api.*
 class SemanticReleaseConfig {
   private final String branch
   private final boolean downloadNode
+  private final boolean autoDetectNode
   private final List<String> packages
   private final distUrl
 
@@ -24,6 +25,7 @@ class SemanticReleaseConfig {
     Map<String, Object> config = yaml.load(new FileReader(configFile))
     this.branch = config.branch
     this.downloadNode = config.gradle?.node?.download == true
+    this.autoDetectNode = config.gradle?.node?.autoDetect ?: false
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages

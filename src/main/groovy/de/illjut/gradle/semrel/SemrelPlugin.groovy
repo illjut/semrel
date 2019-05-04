@@ -51,10 +51,24 @@ class SemrelPlugin implements Plugin<Project> {
         ]
       )
 
-      // acquire nodejs dist
-      if (config.downloadNode && !completeMarker.exists()) {
-        node.setupNode(nodeVersion, project.file(semrelDir))
-        completeMarker.createNewFile();
+      def downloadNode() {
+        if (config.downloadNode && !completeMarker.exists()) {
+          node.setupNode(nodeVersion, project.file(semrelDir))
+          completeMarker.createNewFile();
+        }
+      }
+
+      if (config.autoDetectNode) {
+        project.logger.info "autodetecting node"
+
+        if(node.isNodeAvailable()) {
+          project.logger.info "node is available on PATH"
+        } else {
+          project.logger.info "node is not available on PATH"
+          downloadNode()
+        }
+      } else {
+        downloadNode()
       }
 
       // prepare cache for faster executions
