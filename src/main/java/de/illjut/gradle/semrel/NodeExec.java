@@ -28,6 +28,11 @@ import org.gradle.api.logging.Logger;
 public class NodeExec {
   private final String distBase;
   private final String distHrefTemplate = "{0}/v{1}/node-v{1}-{2}-{3}.{4}";
+
+  private static final String NODE_EXECUTABLE = "node";
+  private static final String NPX_EXECUTABLE = "npx";
+  private static final String NPM_EXECUTABLE = "npm";
+
   private File nodePath = null;
 
   private final Logger logger;
@@ -131,17 +136,21 @@ public class NodeExec {
   }
 
   private ProcessResult exec(List<String> command, File workDir) throws IOException {
+    return this.exec(command, workDir, this.nodePath);
+  }
+
+  private ProcessResult exec(List<String> command, File workDir, File nodePathOverride) throws IOException {
     String pathVar = null;
     String pathValue = null;
 
-    if(this.nodePath != null) {
-      this.logger.info("using custom node path {}", this.nodePath);
+    if(nodePathOverride != null) {
+      this.logger.info("using custom node path {}", nodePathOverride);
       if (System.getenv("Path") != null) {
         pathVar = "Path";
       } else {
         pathVar = "PATH";
       }
-      pathValue = this.nodePath + File.pathSeparator + System.getenv(pathVar);
+      pathValue = nodePathOverride + File.pathSeparator + System.getenv(pathVar);
     }
 
     try {
@@ -149,7 +158,7 @@ public class NodeExec {
         .directory(workDir)
         .redirectErrorStream(true);
       
-      if (nodePath != null) {
+      if (nodePathOverride != null) {
         processBuilder.environment().put(pathVar, pathValue);
       }
 
@@ -178,10 +187,8 @@ public class NodeExec {
   }
 
   public ProcessResult executeNode(List<String> args, File workDir) throws IOException {
-    final String nodeExecutable = "node";
-
     ArrayList<String> command = new ArrayList<>();
-    command.add(nodeExecutable);
+    command.add(NODE_EXECUTABLE);
     command.addAll(args);
 
     try {
@@ -193,10 +200,8 @@ public class NodeExec {
   } 
 
   public ProcessResult executeNpx(List<String> args, List<String> extraPackages, File workDir) throws IOException {
-    final String npmExecutable = "npx";
-
     ArrayList<String> command = new ArrayList<>();
-    command.add(npmExecutable);
+    command.add(NPX_EXECUTABLE);
 
     if(extraPackages != null) {
       extraPackages.stream().forEach(p -> {
@@ -219,10 +224,8 @@ public class NodeExec {
   }
 
   public ProcessResult executeNpm(List<String> args, File workDir) throws IOException {
-    final String npmExecutable = "npm";
-
     ArrayList<String> command = new ArrayList<>();
-    command.add(npmExecutable);
+    command.add(NPM_EXECUTABLE);
     command.addAll(args);
 
     try {
@@ -230,6 +233,21 @@ public class NodeExec {
     }
     catch (IOException e) {
       throw e;
+    }
+  }
+
+  public boolean isNodeAvailable() {
+    ArrayList<String> command = new ArrayList<>();
+    command.add(NODE_EXECUTABLE);
+    command.add("-v");
+
+    try {
+      ProcessResult result = this.exec(command, new File("."), null);
+      return result.exitCode == 0;
+    }
+    catch (IOException e) {
+      this.logger.warn("Error while poking NodeJS. Assuming it is not available.", e);
+      return false;
     }
   }
 
