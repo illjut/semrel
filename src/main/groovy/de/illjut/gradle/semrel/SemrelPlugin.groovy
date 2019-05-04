@@ -21,6 +21,11 @@ class SemrelPlugin implements Plugin<Project> {
     def nodeVersion = "10.15.3"
     def semanticReleaseVersion = "15"
 
+    def grgit = Grgit.open(dir: project.rootProject.projectDir)
+    def gitDescribe = grgit.describe()
+    def currentBranch = grgit.branch.current();
+    grgit.close()
+
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
     def node = new NodeExec(config.distUrl, project.logger)
 
@@ -33,7 +38,7 @@ class SemrelPlugin implements Plugin<Project> {
       packageJson.text = groovy.json.JsonOutput.toJson(
         [ 
           name: project.name ?: "unknown",
-          branch: config.branch,
+          branch: currentBranch.name // config.branch,
           release: [
             verifyConditions: "@semantic-release/exec",
             plugins: [
@@ -84,31 +89,32 @@ class SemrelPlugin implements Plugin<Project> {
         }
       }
 
-      // use grgit to create temporary version, if neccessary
+      if (currentBranch.name != config.branch) {
+        // we are currently not on the release branch
+        project.logger.debug "currently not on release branch"
+        
+        if (gitDescribe == null) {
+          project.version = "${currentBranch.name}-SNAPSHOT"
+        } else {
+          def matcher = (gitDescribe =~ /^(.*)-\d+-\w+$/)
+          if (matcher.hasGroup()) {
+            project.version = "${matcher[0][1]}-${currentBranch.name}-SNAPSHOT"
+          } else {
+            project.version = "${currentBranch.name}-SNAPSHOT"
+          }
+        }
+      } else {
+        // we are currently on the release branch
+        project.logger.info "currently on release branch {}", config.branch
+      }
+
+      // use current branch to create temporary version, if neccessary
       if(!versionFound) {
         project.logger.info "Could not retrieve version via semantic-release. If this is unexpected see the semantic-release log for details."
         project.logger.info "Assuming this is not a release branch."
-        def grgit = Grgit.open(dir: project.rootProject.projectDir)
-
-        def gitDescribe = grgit.describe()
-
-        if (gitDescribe == null) {
-          project.version = "${grgit.branch.current().name}-SNAPSHOT"
-        } else {
-          def pattern = /^(.*)-\d+-\w+$/
-
-          def matcher = (gitDescribe =~ pattern)
-          if (matcher.hasGroup()) {
-            project.version = "${matcher[0][1]}-${grgit.branch.current().name}-SNAPSHOT"
-          } else {
-            project.version = "${grgit.branch.current().name}-SNAPSHOT"
-          }
-        }
 
         // remove invalid characters
         project.version = project.version.replace('/', '-')
-
-        grgit.close()
       }
 
       project.logger.quiet "Inferred version: ${project.version}"
