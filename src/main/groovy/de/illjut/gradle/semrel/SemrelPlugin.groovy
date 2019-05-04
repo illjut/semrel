@@ -38,7 +38,7 @@ class SemrelPlugin implements Plugin<Project> {
       packageJson.text = groovy.json.JsonOutput.toJson(
         [ 
           name: project.name ?: "unknown",
-          branch: currentBranch.name // config.branch,
+          branch: currentBranch.name, // config.branch,
           release: [
             verifyConditions: "@semantic-release/exec",
             plugins: [
@@ -51,13 +51,6 @@ class SemrelPlugin implements Plugin<Project> {
         ]
       )
 
-      def downloadNode() {
-        if (config.downloadNode && !completeMarker.exists()) {
-          node.setupNode(nodeVersion, project.file(semrelDir))
-          completeMarker.createNewFile();
-        }
-      }
-
       if (config.autoDetectNode) {
         project.logger.info "autodetecting node"
 
@@ -65,10 +58,18 @@ class SemrelPlugin implements Plugin<Project> {
           project.logger.info "node is available on PATH"
         } else {
           project.logger.info "node is not available on PATH"
-          downloadNode()
+          if (config.downloadNode && !completeMarker.exists()) {
+            // download node
+            node.setupNode(nodeVersion, project.file(semrelDir))
+            completeMarker.createNewFile();
+          }
         }
       } else {
-        downloadNode()
+        if (config.downloadNode && !completeMarker.exists()) {
+          // download node
+          node.setupNode(nodeVersion, project.file(semrelDir))
+          completeMarker.createNewFile();
+        }
       }
 
       // prepare cache for faster executions
