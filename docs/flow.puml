@@ -1,0 +1,28 @@
+@startuml initialization
+skinparam monochrome true
+
+start
+if (download NodeJS) then (true)
+  :download NodeJS;
+else (false)
+endif
+
+if (semantic-release packages cached) then (true)
+  :download packages;
+else (false)
+endif
+
+:write dry-run config;
+:run semantic-release dry-run;
+:evaluate output;
+
+if (on release branch) then (true)
+  :set project.version;
+else (false)
+  :set non-release version;
+endif
+
+
+stop
+
+@enduml
