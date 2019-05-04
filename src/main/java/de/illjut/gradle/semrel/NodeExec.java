@@ -246,7 +246,7 @@ public class NodeExec {
       return result.exitCode == 0;
     }
     catch (IOException e) {
-      this.logger.warn("Error while poking NodeJS. Assuming it is not available.", e);
+      this.logger.warn("Error while poking NodeJS. Assuming it is not available.");
       return false;
     }
   }

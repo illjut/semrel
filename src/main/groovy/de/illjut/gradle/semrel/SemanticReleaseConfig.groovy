@@ -25,7 +25,7 @@ class SemanticReleaseConfig {
     Map<String, Object> config = yaml.load(new FileReader(configFile))
     this.branch = config.branch
     this.downloadNode = config.gradle?.node?.download == true
-    this.autoDetectNode = config.gradle?.node?.autoDetect ?: false
+    this.autoDetectNode = config.gradle?.node?.detect ?: false
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages
