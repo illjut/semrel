@@ -65,6 +65,7 @@ class SemrelPlugin implements Plugin<Project> {
           }
         }
       } else {
+        project.logger.info "skipped autodetection"
         if (config.downloadNode && !completeMarker.exists()) {
           // download node
           node.setupNode(nodeVersion, project.file(semrelDir))

@@ -22,7 +22,7 @@ Configure semantic-release using a `.releaserc.yml` in your `rootProject`
 
 | key                       | value      | description |
 | ---                       | ---        | ---         |
-| `gradle.node.autoDetect`  | `boolean`  | Try to autodetect an existing NodeJS installation. If detection is successful, skip NodeJS download and setup. Otherwise use `download` config |
+| `gradle.node.detect`  | `boolean`  | Try to autodetect an existing NodeJS installation. If detection is successful, skip NodeJS download and setup. Otherwise use `download` config |
 | `gradle.node.download`    | `boolean`  | Download and setup a local NodeJS dist |
 | `gradle.node.distUrl`     | `string`   | Base distribution url to retrieve NodeJS binaries |
 | `gradle.node.packages`    | `string[]` | Extra packages supplied to `npx` when running `semantic-release`. This should contain the plugins used your `semantic-release` `plugin` config |
