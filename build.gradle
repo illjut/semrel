@@ -6,7 +6,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'de.illjut.gradle', name: 'semrel', version: '0.0.3'
+  //  classpath group: 'de.illjut.gradle', name: 'semrel', version: '0.0.3'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
   }
 }
@@ -19,7 +19,7 @@ plugins {
 
 apply plugin: 'com.jfrog.bintray'
 
-apply plugin: 'de.illjut.gradle.semrel'
+//apply plugin: 'de.illjut.gradle.semrel'
 
 repositories {
   jcenter()
@@ -32,6 +32,9 @@ dependencies {
   compile "org.yaml:snakeyaml:1.24"
   compile "org.apache.commons:commons-compress:1.18"
   compile "org.ajoberstar.grgit:grgit-core:3.1.1"
+
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.4.2'
+  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
 }
 
 group = 'de.illjut.gradle'
