@@ -18,7 +18,7 @@ public class LogStream implements Runnable {
     this.logLine = new StringBuilder();
   }
 
-  private void processData(byte[] data) {
+  protected void processData(byte[] data) {
     String chunk = new String(data);
 
     String lines[] = chunk.split("\n");
