@@ -1,12 +1,12 @@
 buildscript {
   repositories {
     jcenter()
+    maven { url 'https://dl.bintray.com/illjut/maven' }
     mavenLocal()
-    //maven { url 'https://dl.bintray.com/illjut/maven' }
   }
 
   dependencies {
-  //  classpath group: 'de.illjut.gradle', name: 'semrel', version: '0.0.3'
+    classpath group: 'de.illjut.gradle', name: 'semrel', version: '1.0.0'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
   }
 }
@@ -18,8 +18,7 @@ plugins {
 }
 
 apply plugin: 'com.jfrog.bintray'
-
-//apply plugin: 'de.illjut.gradle.semrel'
+apply plugin: 'de.illjut.gradle.semrel'
 
 repositories {
   jcenter()
@@ -38,7 +37,6 @@ dependencies {
 }
 
 group = 'de.illjut.gradle'
-version = '0.0.3'
 
 gradlePlugin {
   plugins {
