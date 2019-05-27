@@ -14,6 +14,10 @@ import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -164,22 +168,25 @@ public class NodeExec {
 
       Process proc = processBuilder.start();
 
-      Thread logStream = new Thread(new LogStream(this.logger, proc.getInputStream()));
-      logStream.start();
-
+      LogStream logStream = new LogStream(this.logger, proc.getInputStream());
+      
+      ExecutorService logExecutor = Executors.newSingleThreadExecutor();
+      Future<List<String>> logs = logExecutor.submit(logStream);
+      
       try {
         proc.waitFor();
-        logStream.interrupt();
+        proc.getInputStream().close();
+        logExecutor.shutdown();
+
+        return new ProcessResult(
+          proc.exitValue(),
+          logs.get()
+        );
       }
-      catch(InterruptedException e) {
+      catch(ExecutionException | InterruptedException e) {
         throw new RuntimeException("NodeJS child process was interrupted", e);
       }
 
-      return new ProcessResult(
-        proc.exitValue(),
-        proc.getErrorStream(),
-        proc.getInputStream()
-      );
     }
     catch (IOException e) {
       throw e;
@@ -212,8 +219,8 @@ public class NodeExec {
 
     command.addAll(args);
     
-    logger.info("executing {}", String.join(" ", command));
     logger.info("using working directory {}", workDir);
+    logger.info("executing {}", String.join(" ", command));
 
     try {
       return this.exec(command, workDir);

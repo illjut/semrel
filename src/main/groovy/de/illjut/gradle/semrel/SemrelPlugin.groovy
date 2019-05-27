@@ -89,12 +89,11 @@ class SemrelPlugin implements Plugin<Project> {
       )
 
       // retrieve information from semantic-release stdout
-      def lines = new BufferedReader(new InputStreamReader(result.stdErr))
-      def line = null
       def versionFound = false
       def branch = null;
       def lastVersion = null;
-      while ((line = lines.readLine()) != null) {
+
+      for (String line : result.log) {
         def matcher = (line =~ versionPattern)
         if(matcher.find()) {
           branch = matcher.group(1);

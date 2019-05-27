@@ -1,15 +1,13 @@
 package de.illjut.gradle.semrel;
 
-import java.io.InputStream;
+import java.util.List;
 
 public class ProcessResult {
-  InputStream stdOut;
-  InputStream stdErr;
+  List<String> log;
   int exitCode;
 
-  public ProcessResult(int exitCode, InputStream stdOut, InputStream stdErr) {
+  public ProcessResult(int exitCode, List<String> log) {
     this.exitCode = exitCode;
-    this.stdOut = stdOut;
-    this.stdErr = stdErr;
+    this.log = log;
   }
 }
