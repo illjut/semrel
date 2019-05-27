@@ -2,7 +2,7 @@ buildscript {
   repositories {
     jcenter()
     maven { url 'https://dl.bintray.com/illjut/maven' }
-    mavenLocal()
+    //mavenLocal()
   }
 
   dependencies {
@@ -72,6 +72,6 @@ bintray {
 }
 
 
-//project.tasks.release.onlyIf { project.version != null && project.version != 'unspecified' }
+project.tasks.release.onlyIf { project.version != null && project.version != 'unspecified' }
 
-//project.tasks.bintrayUpload.dependsOn "release"
+project.tasks.bintrayUpload.dependsOn "release"
