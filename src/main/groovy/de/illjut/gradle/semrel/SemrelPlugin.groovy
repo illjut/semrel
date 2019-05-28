@@ -14,6 +14,7 @@ class SemrelPlugin implements Plugin<Project> {
   void apply(Project project) {
     def semrelDir = "${project.buildDir}/semrel"
     def completeMarker = project.file("${semrelDir}/.complete")
+    def cacheCompleteMarker = project.file("${semrelDir}/.cacheComplete")
     def workDir = project.file("${semrelDir}/")
     def nodeCache = project.file("${semrelDir}/node_modules")
     def packageJson = project.file("${semrelDir}/package.json")
@@ -23,7 +24,9 @@ class SemrelPlugin implements Plugin<Project> {
 
     def grgit = Grgit.open(dir: project.rootProject.projectDir)
     def gitDescribe = grgit.describe()
-    def currentBranch = grgit.branch.current();
+    def currentBranch = grgit.branch.current()
+    def gitStatus = grgit.status()
+
     grgit.close()
 
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
@@ -38,7 +41,7 @@ class SemrelPlugin implements Plugin<Project> {
       packageJson.text = groovy.json.JsonOutput.toJson(
         [ 
           name: project.name ?: "unknown",
-          branch: currentBranch.name, // config.branch,
+          branch: currentBranch.name, // set to current branch to retrieve version
           release: [
             verifyConditions: "@semantic-release/exec",
             plugins: [
@@ -52,31 +55,29 @@ class SemrelPlugin implements Plugin<Project> {
       )
 
       if (config.autoDetectNode) {
-        project.logger.info "autodetecting node"
+        project.logger.info "trying to autodetect a nodejs installation"
 
         if(node.isNodeAvailable()) {
           project.logger.info "node is available on PATH"
         } else {
           project.logger.info "node is not available on PATH"
-          if (config.downloadNode && !completeMarker.exists()) {
-            // download node
+          if (config.downloadNode && !completeMarker.exists()) { // download node
             node.setupNode(nodeVersion, project.file(semrelDir))
-            completeMarker.createNewFile();
+            completeMarker.createNewFile()
           }
         }
       } else {
-        project.logger.info "skipped autodetection"
-        if (config.downloadNode && !completeMarker.exists()) {
-          // download node
+        project.logger.info "skipped nodejs autodetection"
+        if (config.downloadNode && !completeMarker.exists()) { // download node
           node.setupNode(nodeVersion, project.file(semrelDir))
-          completeMarker.createNewFile();
+          completeMarker.createNewFile()
         }
       }
 
-      // prepare cache for faster executions
-      if (!project.file("$nodeCache/semantic-release").exists()) {
-        project.logger.info "preparing npm cache for faster executions"
+      if (!cacheCompleteMarker.exists()) { // prepare cache for faster executions
+        project.logger.info "preparing npm cache for faster executions."
         node.executeNpm(['i', '-D', "semantic-release@v${semanticReleaseVersion}".toString(), "@semantic-release/exec"], workDir)
+        cacheCompleteMarker.createNewFile()
       }
 
       def extraPackages = [ ]
@@ -92,8 +93,9 @@ class SemrelPlugin implements Plugin<Project> {
       def versionFound = false
       def branch = null;
       def lastVersion = null;
+      def snapshot = false;
 
-      for (String line : result.log) {
+      for (String line : result.log) { // iterate through log and try to find version marker
         def matcher = (line =~ versionPattern)
         if(matcher.find()) {
           branch = matcher.group(1);
@@ -104,10 +106,28 @@ class SemrelPlugin implements Plugin<Project> {
         }
       }
 
-      if (currentBranch.name != config.branch) {
-        // we are currently not on the release branch
+      if (!gitStatus.isClean()) { // local repo has uncommitted changes
+        project.logger.info "The local git repository is not clean. There are uncommitted changes."
+
+        if (project.logger.isEnabled(org.gradle.api.logging.LogLevel.INFO)) { // print uncommitted files
+          gitStatus.staged.getAllChanges().each {
+            project.logger.info "staged change  : {}", it
+          }
+
+          gitStatus.unstaged.getAllChanges().each {
+            project.logger.info "unstaged change: {}", it
+          }
+        }
+        snapshot = true;
+      } else if (currentBranch.name != config.branch) { // we are currently not on the release branch
         project.logger.debug "currently not on release branch"
-        
+        snapshot = true;
+      } else { // we are currently on the release branch
+        project.logger.info "currently on release branch {}", config.branch
+        snapshot = false;
+      }
+
+      if (snapshot || !versionFound) { // append snapshot tag to version
         if (gitDescribe == null) {
           project.version = "${currentBranch.name}-SNAPSHOT"
         } else {
@@ -118,13 +138,9 @@ class SemrelPlugin implements Plugin<Project> {
             project.version = "${currentBranch.name}-SNAPSHOT"
           }
         }
-      } else {
-        // we are currently on the release branch
-        project.logger.info "currently on release branch {}", config.branch
       }
 
-      // use current branch to create temporary version, if neccessary
-      if(!versionFound) {
+      if(!versionFound) { // use current branch to create temporary version, if neccessary
         project.logger.info "Could not retrieve version via semantic-release. If this is unexpected see the semantic-release log for details."
         project.logger.info "Assuming this is not a release branch."
 
