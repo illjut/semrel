@@ -23,7 +23,7 @@ class SemrelPlugin implements Plugin<Project> {
     def semanticReleaseVersion = "15"
 
     def grgit = Grgit.open(dir: project.rootProject.projectDir)
-    def gitDescribe = grgit.describe()
+    def gitDescribe = grgit.describe(longDescr: false, tags: true)
     def currentBranch = grgit.branch.current()
     def gitStatus = grgit.status()
 
