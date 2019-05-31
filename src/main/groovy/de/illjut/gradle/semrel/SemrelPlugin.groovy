@@ -131,12 +131,7 @@ class SemrelPlugin implements Plugin<Project> {
         if (gitDescribe == null) {
           project.version = "${currentBranch.name}-SNAPSHOT"
         } else {
-          def matcher = (gitDescribe =~ /^(.*)-\d+-\w+$/)
-          if (matcher.hasGroup()) {
-            project.version = "${matcher[0][1]}-${currentBranch.name}-SNAPSHOT"
-          } else {
-            project.version = "${currentBranch.name}-SNAPSHOT"
-          }
+          project.version = "${gitDescribe}-${currentBranch.name}-SNAPSHOT"
         }
       }
 
@@ -149,6 +144,7 @@ class SemrelPlugin implements Plugin<Project> {
       }
 
       project.logger.quiet "Inferred version: ${project.version}"
+      project.ext.isSnapshot = snapshot
     }
 
     project.tasks.register('release') {
