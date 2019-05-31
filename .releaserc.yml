@@ -1,3 +1,4 @@
+# standard semantic-release configuration
 branch: master
 plugins:
   - '@semantic-release/commit-analyzer'
@@ -5,6 +6,7 @@ plugins:
   - '@semantic-release/github'
 ci: false
 
+# gradle semrel configuration
 gradle:
   node:
     detect: true # try to detect system node, if found skip download evaluation.
