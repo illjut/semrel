@@ -128,7 +128,7 @@ class SemrelPlugin implements Plugin<Project> {
       }
 
       if (snapshot || !versionFound) { // append snapshot tag to version
-        if (gitDescribe == null) {
+        if (gitDescribe == null) { // no git describe is possible
           project.version = "${currentBranch.name}-SNAPSHOT"
         } else {
           project.version = "${gitDescribe}-${currentBranch.name}-SNAPSHOT"
