@@ -19,7 +19,7 @@ class SemrelPlugin implements Plugin<Project> {
     def nodeCache = project.file("${semrelDir}/node_modules")
     def packageJson = project.file("${semrelDir}/package.json")
 
-    def nodeVersion = "10.15.3"
+    def nodeVersion = "10.16.0"
     def semanticReleaseVersion = "15"
 
     def grgit = Grgit.open(dir: project.rootProject.projectDir)
