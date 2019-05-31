@@ -18,6 +18,7 @@ class SemrelPlugin implements Plugin<Project> {
     def workDir = project.file("${semrelDir}/")
     def nodeCache = project.file("${semrelDir}/node_modules")
     def packageJson = project.file("${semrelDir}/package.json")
+    def snapshot = false;
 
     def nodeVersion = "10.16.0"
     def semanticReleaseVersion = "15"
@@ -93,7 +94,6 @@ class SemrelPlugin implements Plugin<Project> {
       def versionFound = false
       def branch = null;
       def lastVersion = null;
-      def snapshot = false;
 
       for (String line : result.log) { // iterate through log and try to find version marker
         def matcher = (line =~ versionPattern)
@@ -150,6 +150,9 @@ class SemrelPlugin implements Plugin<Project> {
     project.tasks.register('release') {
       description "Runs semantic-relase on the root project"
       group GROUP_NAME
+      onlyIf {
+        !snapshot
+      }
 
       doLast {
         def extraPackages = ["semantic-release@v${semanticReleaseVersion}".toString()]
