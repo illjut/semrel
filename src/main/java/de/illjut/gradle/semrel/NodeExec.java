@@ -208,7 +208,11 @@ public class NodeExec {
 
   public ProcessResult executeNpx(List<String> args, List<String> extraPackages, File workDir) throws IOException {
     ArrayList<String> command = new ArrayList<>();
-    command.add(NPX_EXECUTABLE);
+    if (PlatformHelper.isWindows()) {
+      command.add(NPX_EXECUTABLE + ".cmd");
+    } else {
+      command.add(NPX_EXECUTABLE);
+    }
 
     if(extraPackages != null) {
       extraPackages.stream().forEach(p -> {
@@ -232,7 +236,11 @@ public class NodeExec {
 
   public ProcessResult executeNpm(List<String> args, File workDir) throws IOException {
     ArrayList<String> command = new ArrayList<>();
-    command.add(NPM_EXECUTABLE);
+    if (PlatformHelper.isWindows()) {
+      command.add(NPM_EXECUTABLE + ".cmd");
+    } else {
+      command.add(NPM_EXECUTABLE);
+    }
     command.addAll(args);
 
     try {
