@@ -119,6 +119,14 @@ public class NodeExec {
         try (OutputStream o = Files.newOutputStream(f.toPath())) {
           IOUtils.copy(i, o);
         }
+
+        if(PlatformHelper.isUnix()) {
+          f.setExecutable(
+            name.endsWith("bin/node")
+            || name.endsWith("bin/npm")
+            || name.endsWith("bin/npx")
+          );
+        }
       }
     }
 
