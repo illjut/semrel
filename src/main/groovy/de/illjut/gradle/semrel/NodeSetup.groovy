@@ -5,6 +5,7 @@ import de.illjut.gradle.semrel.*
 import java.text.MessageFormat
 import java.util.*
 import java.io.*
+import java.nio.file.*
 
 class NodeSetup {
   private final String distBase;
@@ -68,6 +69,19 @@ class NodeSetup {
     this.nodeBinPath = new File(dest, archiveName + "/bin/");
 
     if (PlatformHelper.isUnix()) {
+      for (String symlink : [ "npm", "npx"]) {
+        Path target = (new File(this.nodeBinPath, symlink)).toPath();
+        if (Files.deleteIfExists(target)) {
+          Files.createSymbolicLink(
+            target,
+            nodeBinPath.toPath().relativize(
+              new File(this.nodeBinPath.parentFile, "lib/node_modules/npm/bin/${symlink}-cli.js")
+                .toPath()
+            )
+          )
+        }
+      }
+      
       for (String executable : [ "node", "npm", "npx" ]) {
         new File(this.nodeBinPath, executable).setExecutable(true);
       }
