@@ -10,7 +10,6 @@ class SemrelPlugin implements Plugin<Project> {
 
   void apply(Project project) {
     def semrelDir = "${project.buildDir}/semrel"
-    def completeMarker = project.file("${semrelDir}/.complete")
     def cacheCompleteMarker = project.file("${semrelDir}/.cacheComplete")
     def workDir = project.file("${semrelDir}/")
     def nodeCache = project.file("${semrelDir}/node_modules")
@@ -67,16 +66,14 @@ class SemrelPlugin implements Plugin<Project> {
           project.logger.info "node is available on PATH"
         } else {
           project.logger.info "node is not available on PATH"
-          if (config.downloadNode && !completeMarker.exists()) { // download node
+          if (config.downloadNode) {
             setup.setupNode(nodeVersion, project.file(semrelDir))
-            completeMarker.createNewFile()
           }
         }
       } else {
         project.logger.info "skipped nodejs autodetection"
-        if (config.downloadNode && !completeMarker.exists()) { // download node
+        if (config.downloadNode) {
           setup.setupNode(nodeVersion, project.file(semrelDir))
-          completeMarker.createNewFile()
         }
       }
 

@@ -10,6 +10,8 @@ import java.nio.file.*
 class NodeSetup {
   private final String distBase;
   private final String distHrefTemplate = "{0}/v{1}/node-v{1}-{2}-{3}.{4}";
+  private final String distFilenameTemplate = "node-v{0}-{1}-{2}"
+  private final String completeMarkerName = ".complete";
 
   def project;
   def nodeBinPath;
@@ -17,6 +19,11 @@ class NodeSetup {
   NodeSetup(project, distBase = "https://nodejs.org/dist") {
     this.project = project;
     this.distBase = distBase;
+  }
+
+  String buildFilename(version) {
+    String platform = PlatformHelper.getPlatform();
+    return MessageFormat.format(this.distFilenameTemplate, version, platform, PlatformHelper.getArch());
   }
 
   String buildDownloadUrl(version) {
@@ -30,8 +37,16 @@ class NodeSetup {
   }
 
   void setupNode(String version, File dest) {
-    def distFile = this.downloadNode(version, dest);
-    this.unpack(distFile, dest);
+    def completeMarker = new File(dest, this.completeMarkerName)
+
+    if (!completeMarker.exists()) { // download node
+      def distFile = this.downloadNode(version, dest)
+      this.unpack(distFile, dest)
+      completeMarker.createNewFile()
+    } else {
+      this.project.logger.info "skipped node download (completion marker found)"
+      this.nodeBinPath = new File(dest, "${this.buildFilename(version)}/bin")
+    }
   }
 
   File downloadNode(String version, File dest) {
