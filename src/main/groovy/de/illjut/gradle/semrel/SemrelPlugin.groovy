@@ -28,7 +28,7 @@ class SemrelPlugin implements Plugin<Project> {
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
     def nodeVersion = config.nodeVersion;
 
-    def nodeExec = new NodeExec(project.logger, null);
+    def nodeExec = new NodeExec(project, null);
 
     project.configure(project) {
 
@@ -76,6 +76,9 @@ class SemrelPlugin implements Plugin<Project> {
           setup.setupNode(nodeVersion, project.file(semrelDir))
         }
       }
+
+      // sync with possible project npmrc
+      setup.copyNpmRc(project.file(semrelDir));
 
       nodeExec.nodePath = setup.nodeBinPath;
 

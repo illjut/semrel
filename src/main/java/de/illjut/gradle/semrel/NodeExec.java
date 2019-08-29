@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
 
 
@@ -21,9 +22,9 @@ public class NodeExec {
 
   private final Logger logger;
 
-  public NodeExec(Logger logger, File nodePath) {
+  public NodeExec(Project project, File nodePath) {
     this.nodePath = nodePath;
-    this.logger = logger;
+    this.logger = project.getLogger();
   }
 
   public void setNodePath(File path) {

@@ -36,6 +36,20 @@ class NodeSetup {
     return MessageFormat.format(this.distHrefTemplate, this.distBase, version, platform, PlatformHelper.getArch(), archiveType);
   }
 
+  void copyNpmRc(File dest) {
+    def npmrc = new File(project.rootProject.projectDir, ".npmrc")
+    def target = new File(dest, ".npmrc");
+    if (npmrc.exists()) {
+      Files.copy(
+        npmrc.toPath(),
+        target.toPath(),
+        StandardCopyOption.REPLACE_EXISTING
+      );
+    } else if (target.exists()) {
+      Files.delete(target.toPath());
+    }
+  }
+
   void setupNode(String version, File dest) {
     def completeMarker = new File(dest, this.completeMarkerName)
 
