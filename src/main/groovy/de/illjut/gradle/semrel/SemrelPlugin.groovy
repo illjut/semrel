@@ -2,9 +2,6 @@ package de.illjut.gradle.semrel
 
 import org.gradle.api.*
 import java.io.*
-import com.moowork.gradle.node.task.*
-import com.moowork.gradle.node.npm.*
-import com.moowork.gradle.node.*
 
 import org.ajoberstar.grgit.Grgit
 
@@ -20,7 +17,6 @@ class SemrelPlugin implements Plugin<Project> {
     def packageJson = project.file("${semrelDir}/package.json")
     def snapshot = false;
 
-    def nodeVersion = "10.16.0"
     def semanticReleaseVersion = "15"
 
     def grgit = Grgit.open(dir: project.rootProject.projectDir)
@@ -31,9 +27,18 @@ class SemrelPlugin implements Plugin<Project> {
     grgit.close()
 
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
-    def node = new NodeExec(config.distUrl, project.logger)
+    def nodeVersion = config.nodeVersion;
+
+    def nodeExec = new NodeExec(project.logger, null);
 
     project.configure(project) {
+
+      def setup = new NodeSetup(project, config.distUrl);
+
+      if (project.hasProperty('skipSemrel') && project.getProperty('skipSemrel').toBoolean()) {
+        this.project.logger.info "skipping semrel due to property skipSemrel"
+        return;
+      }
 
       // create semrel build directory
       project.file(semrelDir).mkdirs();
@@ -58,33 +63,35 @@ class SemrelPlugin implements Plugin<Project> {
       if (config.autoDetectNode) {
         project.logger.info "trying to autodetect a nodejs installation"
 
-        if(node.isNodeAvailable()) {
+        if(nodeExec.isNodeAvailable()) {
           project.logger.info "node is available on PATH"
         } else {
           project.logger.info "node is not available on PATH"
           if (config.downloadNode && !completeMarker.exists()) { // download node
-            node.setupNode(nodeVersion, project.file(semrelDir))
+            setup.setupNode(nodeVersion, project.file(semrelDir))
             completeMarker.createNewFile()
           }
         }
       } else {
         project.logger.info "skipped nodejs autodetection"
         if (config.downloadNode && !completeMarker.exists()) { // download node
-          node.setupNode(nodeVersion, project.file(semrelDir))
+          setup.setupNode(nodeVersion, project.file(semrelDir))
           completeMarker.createNewFile()
         }
       }
 
+      nodeExec.nodePath = setup.nodeBinPath;
+
       if (!cacheCompleteMarker.exists()) { // prepare cache for faster executions
         project.logger.info "preparing npm cache for faster executions."
-        node.executeNpm(['i', '-D', "semantic-release@v${semanticReleaseVersion}".toString(), "@semantic-release/exec"], workDir)
+        nodeExec.executeNpm(['i', '--prefer-offline', '-D', "semantic-release@v${semanticReleaseVersion}".toString(), "@semantic-release/exec"], workDir)
         cacheCompleteMarker.createNewFile()
       }
 
       def extraPackages = [ ]
 
       // invoke npx to run semantic release
-      def result = node.executeNpx(
+      def result = nodeExec.executeNpx(
         ['--no-install', 'semantic-release', '--prepare', '--dry-run'],
         extraPackages,
         workDir
@@ -143,6 +150,9 @@ class SemrelPlugin implements Plugin<Project> {
         project.version = project.version.replace('/', '-')
       }
 
+      // remove 'v' prefix from version string to comply to artifact repository version standards
+      project.version = (project.version =~ /[v]?(.+)/)[0][1];
+
       project.logger.quiet "Inferred version: ${project.version}"
       project.ext.isSnapshot = snapshot
     }
@@ -158,7 +168,7 @@ class SemrelPlugin implements Plugin<Project> {
         def extraPackages = ["semantic-release@v${semanticReleaseVersion}".toString()]
         extraPackages.addAll config.packages
 
-        def result = node.executeNpx([
+        def result = nodeExec.executeNpx([
             'semantic-release'
           ],
           extraPackages,

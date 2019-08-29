@@ -7,6 +7,7 @@ import java.io.FileReader
 import org.gradle.api.*
 
 class SemanticReleaseConfig {
+  private final String nodeVersion
   private final String branch
   private final boolean downloadNode
   private final boolean autoDetectNode
@@ -26,6 +27,7 @@ class SemanticReleaseConfig {
     this.branch = config.branch
     this.downloadNode = config.gradle?.node?.download == true
     this.autoDetectNode = config.gradle?.node?.detect ?: false
+    this.nodeVersion = config.gradle?.node?.version ?: '10.16.3'
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages
