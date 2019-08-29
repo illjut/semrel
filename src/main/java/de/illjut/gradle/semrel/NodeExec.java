@@ -50,15 +50,27 @@ public class NodeExec {
   }
 
   private ProcessResult exec(List<String> command, File workDir, File nodePathOverride) throws IOException {
+    String pathVar = null, pathValue = null;
+
     if (nodePathOverride != null) {
       command.set(0, this.nodePath.getAbsolutePath() + "/" + command.get(0));
       this.logger.info("using executable {}", command.get(0));
+
+      this.logger.info("using custom node path {}", nodePathOverride);
+      if (System.getenv("Path") != null) {
+        pathVar = "Path";
+      } else {
+        pathVar = "PATH";
+      }
+      pathValue = nodePathOverride + File.pathSeparator + System.getenv(pathVar);
     }
 
     try {
       ProcessBuilder processBuilder = new ProcessBuilder(command)
         .directory(workDir)
         .redirectErrorStream(true);
+
+      if (pathVar != null) processBuilder.environment().put(pathVar, pathValue);
 
       Process proc = processBuilder.start();
 
