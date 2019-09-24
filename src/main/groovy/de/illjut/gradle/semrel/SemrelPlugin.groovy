@@ -84,8 +84,13 @@ class SemrelPlugin implements Plugin<Project> {
 
       if (!cacheCompleteMarker.exists()) { // prepare cache for faster executions
         project.logger.info "preparing npm cache for faster executions."
-        nodeExec.executeNpm(['i', '--prefer-offline', '-D', "semantic-release@v${semanticReleaseVersion}".toString(), "@semantic-release/exec"], workDir)
-        cacheCompleteMarker.createNewFile()
+        def cacheResult = nodeExec.executeNpm(['i', '--prefer-offline', '-D', "semantic-release@v${semanticReleaseVersion}".toString(), "@semantic-release/exec"], workDir)
+
+        if (cacheResult.isSuccess()) {
+          cacheCompleteMarker.createNewFile()
+        } else {
+          throw new GradleScriptException("Failed to initialize NPM cache. See log for details.", new Exception("npm i failed. See details by running gradle with -i"))
+        }
       }
 
       def extraPackages = [ ]

@@ -10,4 +10,8 @@ public class ProcessResult {
     this.exitCode = exitCode;
     this.log = log;
   }
+
+  public boolean isSuccess() {
+    return exitCode == 0;
+  }
 }
