@@ -13,6 +13,7 @@ class SemanticReleaseConfig {
   private final boolean autoDetectNode
   private final List<String> packages
   private final distUrl
+  private final npmConfig
 
   SemanticReleaseConfig(File configFile = new File(".releaserc.yml")) {
     Yaml yaml = new Yaml();
@@ -28,6 +29,7 @@ class SemanticReleaseConfig {
     this.downloadNode = config.gradle?.node?.download == true
     this.autoDetectNode = config.gradle?.node?.detect ?: false
     this.nodeVersion = config.gradle?.node?.version ?: '10.16.3'
+    this.npmConfig = config.gradle?.config;
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages

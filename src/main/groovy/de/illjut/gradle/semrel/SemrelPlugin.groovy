@@ -26,9 +26,12 @@ class SemrelPlugin implements Plugin<Project> {
     grgit.close()
 
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
+    def execConfig = ExecConfig.instance()
+        .registry(config.npmConfig?.registry);
+
     def nodeVersion = config.nodeVersion;
 
-    def nodeExec = new NodeExec(project, null);
+    def nodeExec = new NodeExec(project, null, execConfig);
 
     project.configure(project) {
 
@@ -77,9 +80,6 @@ class SemrelPlugin implements Plugin<Project> {
         }
       }
 
-      // sync with possible project npmrc
-      setup.copyNpmRc(project.file(semrelDir));
-
       nodeExec.nodePath = setup.nodeBinPath;
 
       if (!cacheCompleteMarker.exists()) { // prepare cache for faster executions
@@ -101,13 +101,14 @@ class SemrelPlugin implements Plugin<Project> {
       def versionFound = false
       def branch = null;
       def lastVersion = null;
+      def version;
 
       for (String line : result.log) { // iterate through log and try to find version marker
         def matcher = (line =~ versionPattern)
         if(matcher.find()) {
           branch = matcher.group(1);
           lastVersion = matcher.group(2);
-          project.version = matcher.group(3)
+          version = matcher.group(3)
           versionFound = true
           break;
         }
@@ -136,9 +137,9 @@ class SemrelPlugin implements Plugin<Project> {
 
       if (snapshot || !versionFound) { // append snapshot tag to version
         if (gitDescribe == null) { // no git describe is possible
-          project.version = "${currentBranch.name}-SNAPSHOT"
+          version = "${currentBranch.name}-SNAPSHOT"
         } else {
-          project.version = "${gitDescribe}-${currentBranch.name}-SNAPSHOT"
+          version = "${gitDescribe}-${currentBranch.name}-SNAPSHOT"
         }
       }
 
@@ -147,11 +148,16 @@ class SemrelPlugin implements Plugin<Project> {
         project.logger.info "Assuming this is not a release branch."
 
         // remove invalid characters
-        project.version = project.version.replace('/', '-')
+        version = version.replace('/', '-')
       }
 
       // remove 'v' prefix from version string to comply to artifact repository version standards
-      project.version = (project.version =~ /[v]?(.+)/)[0][1];
+      version = (version =~ /[v]?(.+)/)[0][1];
+
+      // set version on all projects
+      project.getAllprojects().each {
+        it.version = version
+      }
 
       project.logger.quiet "Inferred version: ${project.version}"
       project.ext.isSnapshot = snapshot

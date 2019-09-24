@@ -24,8 +24,10 @@ public class LogStream implements Callable<List<String>> {
   }
 
   private void addLogLine(String line) {
-    this.log.add(line);
-    this.logger.info(line);
+    if (line.trim().length() > 0) {
+      this.log.add(line);
+      this.logger.info(line);
+    }
   }
 
   protected void processData(byte[] data) {
