@@ -77,8 +77,6 @@ public class NodeExec {
       
       processBuilder.environment().putAll(this.execConfig.buildEnvVarMap());
 
-      System.out.println(processBuilder.environment().get("npm_config_registry"));
-
       Process proc = processBuilder.start();
 
       LogStream logStream = new LogStream(this.logger, proc.getInputStream());

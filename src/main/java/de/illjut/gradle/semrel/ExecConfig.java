@@ -23,7 +23,6 @@ public class ExecConfig {
     Map<String, String> envVars = new HashMap<String, String>();
 
     envVars.put("npm_config_registry", this.registry);
-    System.out.println(this.registry);
 
     return envVars;
   }
