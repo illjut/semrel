@@ -19,12 +19,14 @@ public class NodeExec {
   private static final String NPM_EXECUTABLE = "npm";
 
   private File nodePath = null;
+  private ExecConfig execConfig;
 
   private final Logger logger;
 
-  public NodeExec(Project project, File nodePath) {
+  public NodeExec(Project project, File nodePath, ExecConfig config) {
     this.nodePath = nodePath;
     this.logger = project.getLogger();
+    this.execConfig = config;
   }
 
   public void setNodePath(File path) {
@@ -72,6 +74,10 @@ public class NodeExec {
         .redirectErrorStream(true);
 
       if (pathVar != null) processBuilder.environment().put(pathVar, pathValue);
+      
+      processBuilder.environment().putAll(this.execConfig.buildEnvVarMap());
+
+      System.out.println(processBuilder.environment().get("npm_config_registry"));
 
       Process proc = processBuilder.start();
 
