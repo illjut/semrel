@@ -27,7 +27,8 @@ class SemrelPlugin implements Plugin<Project> {
 
     def config = new SemanticReleaseConfig(project.rootProject.file(".releaserc.yml"))
     def execConfig = ExecConfig.instance()
-        .registry(config.npmConfig?.registry);
+        .registry(config.npmConfig?.registry)
+        .strictSsl(config.npmConfig?.strictSsl);
 
     def nodeVersion = config.nodeVersion;
 

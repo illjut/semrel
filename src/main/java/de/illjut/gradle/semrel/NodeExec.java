@@ -75,7 +75,9 @@ public class NodeExec {
 
       if (pathVar != null) processBuilder.environment().put(pathVar, pathValue);
       
-      processBuilder.environment().putAll(this.execConfig.buildEnvVarMap());
+      if(this.execConfig != null) {
+        processBuilder.environment().putAll(this.execConfig.buildEnvVarMap());
+      }
 
       Process proc = processBuilder.start();
 
