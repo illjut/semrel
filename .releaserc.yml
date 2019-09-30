@@ -19,3 +19,4 @@ gradle:
       - '@semantic-release/github'
   config:
     registry: https://registry.npmjs.org/
+  env:

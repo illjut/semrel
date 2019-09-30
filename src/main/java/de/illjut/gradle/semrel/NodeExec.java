@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -76,7 +77,15 @@ public class NodeExec {
       if (pathVar != null) processBuilder.environment().put(pathVar, pathValue);
       
       if(this.execConfig != null) {
-        processBuilder.environment().putAll(this.execConfig.buildEnvVarMap());
+        Map<String, String> envMap = this.execConfig.buildEnvVarMap();
+        if (this.logger.isInfoEnabled()) {
+          this.logger.info("running node invocation with env vars:");
+          envMap.forEach((value, key) -> {
+            this.logger.info("  " + value + ": " + key);
+          });
+        }
+
+        processBuilder.environment().putAll(envMap);
       }
 
       Process proc = processBuilder.start();

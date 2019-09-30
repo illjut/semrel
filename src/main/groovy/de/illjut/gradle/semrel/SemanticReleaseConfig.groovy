@@ -12,6 +12,7 @@ class SemanticReleaseConfig {
   private final boolean downloadNode
   private final boolean autoDetectNode
   private final List<String> packages
+  private final envVars
   private final distUrl
   private final npmConfig
 
@@ -30,6 +31,7 @@ class SemanticReleaseConfig {
     this.autoDetectNode = config.gradle?.node?.detect ?: false
     this.nodeVersion = config.gradle?.node?.version ?: '10.16.3'
     this.npmConfig = config.gradle?.config;
+    this.envVars = config.gradle?.env;
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages
