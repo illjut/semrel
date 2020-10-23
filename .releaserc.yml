@@ -8,6 +8,8 @@ ci: false
 
 # gradle semrel configuration
 gradle:
+  semantic_release:
+    version: 17
   node:
     version: 10.16.3
     detect: false # try to detect system node, if found skip download evaluation.

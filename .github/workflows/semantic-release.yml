@@ -1,0 +1,27 @@
+name: Master Build
+
+on:
+  push:
+    branches:
+    - "master"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+
+    - name: Build with Gradle
+      run: gradle test build
+
+    - name: Publish to GitHub Packages
+      run: gradle publish
+      env:
+        PUBLISH_USER: ${{ github.actor }}
+        PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
