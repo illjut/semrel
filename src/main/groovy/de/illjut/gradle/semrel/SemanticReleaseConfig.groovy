@@ -6,15 +6,16 @@ import java.io.File
 import java.io.FileReader
 import org.gradle.api.*
 
-class SemanticReleaseConfig {
-  private final String nodeVersion
-  private final String branch
-  private final boolean downloadNode
-  private final boolean autoDetectNode
-  private final List<String> packages
-  private final envVars
-  private final distUrl
-  private final npmConfig
+public class SemanticReleaseConfig {
+  public final String semanticReleaseVersion
+  public final String nodeVersion
+  public final String branch
+  public final boolean downloadNode
+  public final boolean autoDetectNode
+  public final List<String> packages
+  public final envVars
+  public final distUrl
+  public final npmConfig
 
   SemanticReleaseConfig(File configFile = new File(".releaserc.yml")) {
     Yaml yaml = new Yaml();
@@ -32,6 +33,7 @@ class SemanticReleaseConfig {
     this.nodeVersion = config.gradle?.node?.version ?: '10.16.3'
     this.npmConfig = config.gradle?.config;
     this.envVars = config.gradle?.env;
+    this.semanticReleaseVersion = config.gradle?.semantic_release?.version ?: "17";
     
     if (config.gradle?.node?.packages != null) {
       this.packages = config.gradle.node.packages
