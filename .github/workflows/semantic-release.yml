@@ -25,3 +25,4 @@ jobs:
       env:
         PUBLISH_USER: ${{ github.actor }}
         PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
