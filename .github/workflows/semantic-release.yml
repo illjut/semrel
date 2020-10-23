@@ -18,10 +18,10 @@ jobs:
         java-version: 11
 
     - name: Build with Gradle
-      run: gradle test build
+      run: gradle test build -is
 
     - name: Publish to GitHub Packages
-      run: gradle publish
+      run: gradle publish -is
       env:
         PUBLISH_USER: ${{ github.actor }}
         PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
