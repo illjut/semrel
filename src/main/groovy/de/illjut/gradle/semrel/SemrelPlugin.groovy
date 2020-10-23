@@ -16,7 +16,6 @@ class SemrelPlugin implements Plugin<Project> {
     def packageJson = project.file("${semrelDir}/package.json")
     def snapshot = false;
 
-    def semanticReleaseVersion = "15"
 
     def grgit = Grgit.open(dir: project.rootProject.projectDir)
     def gitDescribe = grgit.describe(longDescr: false, tags: true)
@@ -32,6 +31,7 @@ class SemrelPlugin implements Plugin<Project> {
         .envVars(config.envVars);
 
     def nodeVersion = config.nodeVersion;
+    def semanticReleaseVersion = config.semanticReleaseVersion;
 
     def nodeExec = new NodeExec(project, null, execConfig);
 
