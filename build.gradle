@@ -15,6 +15,7 @@ plugins {
   id 'java-gradle-plugin'
   id 'groovy'
   id 'maven-publish'
+  id "com.github.ben-manes.versions" version "0.33.0"
 }
 
 apply plugin: 'com.jfrog.bintray'
@@ -24,15 +25,20 @@ repositories {
   jcenter()
 }
 
+test {
+  useJUnitPlatform()
+}
+
 dependencies {
   implementation gradleApi()
   implementation localGroovy()
 
-  compile "org.yaml:snakeyaml:1.24"
-  compile "org.ajoberstar.grgit:grgit-core:3.1.1"
+  implementation "org.yaml:snakeyaml:1.27"
+  implementation "org.ajoberstar.grgit:grgit-core:4.1.0"
 
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.4.2'
-  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.4.2'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.7.0'
+  testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
 }
 
 group = 'de.illjut.gradle'
@@ -57,8 +63,19 @@ task sourcesJar(type: Jar) {
 }
 
 publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/illjut/semrel")
+      credentials {
+        username = System.getenv("PUBLISH_USER") ?: ""
+        password = System.getenv("PUBLISH_TOKEN") ?: "none"
+      }
+    }
+  }
+
   publications {
-    mavenJava(MavenPublication) {
+    gpr(MavenPublication) {
       artifactId = 'semrel'
       from components.java
       artifact sourcesJar
@@ -79,30 +96,8 @@ publishing {
   }
 }
 
-bintray {
-  user = project.findProperty("bintray.user") ?: System.getenv('BINTRAY_USER')
-  key = project.findProperty("bintray.apikey") ?: System.getenv('BINTRAY_API_KEY')
-  publications = [ 'mavenJava' ]
-  dryRun = false
-
-  pkg {
-    repo = 'maven'
-    name = 'semrel'
-    userOrg = 'illjut'
-    licenses = ['GPL-3.0']
-    vcsUrl = 'https://github.com/illjut/semrel.git'
-    issueTrackerUrl = 'https://github.com/illjut/semrel/issues'
-    version {
-      name = project.version
-      released  = new Date()
-      vcsTag = project.version
-      gpg {
-        sign = false
-      }
-    }
-  }
+project.tasks.release.onlyIf { !project.ext.isSnapshot }
+tasks.withType(PublishToMavenRepository) {
+  onlyIf { !project.ext.isSnapshot }
+  dependsOn project.tasks.release
 }
-
-
-project.tasks.release.onlyIf { project.version != null && project.version != 'unspecified' }
-project.tasks.bintrayUpload.dependsOn "release"
