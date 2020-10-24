@@ -2,7 +2,8 @@
 
 The plugin is configured using the semantic-release `.releaserc.yml` inside your repository.
 
-``` yaml
+```yaml
+# example semantic-release configuration
 branch: master
 plugins:
   - '@semantic-release/commit-analyzer'
@@ -10,7 +11,8 @@ plugins:
   - '@semantic-release/github'
 ci: false
 
-gradle: # gradle semrel configuration
+# gradle semrel configuration
+gradle:
   semantic_release:
     version: 17
   node:
@@ -25,4 +27,4 @@ gradle: # gradle semrel configuration
   config:
     registry: https://registry.npmjs.org/
   env:
-  ```
+```
