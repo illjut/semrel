@@ -1,0 +1,7 @@
+site_name: Gradle Semantic Release Plugin
+
+nav:
+  - General: README.md
+  - Configuration: configuration.md
+
+theme: readthedocs
