@@ -1,2 +1,1 @@
-sphinx-markdown-parser
-pymdown-extensions
+recommonmark
