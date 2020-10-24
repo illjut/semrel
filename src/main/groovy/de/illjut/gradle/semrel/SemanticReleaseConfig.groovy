@@ -30,7 +30,7 @@ public class SemanticReleaseConfig {
     this.branch = config.branch
     this.downloadNode = config.gradle?.node?.download == true
     this.autoDetectNode = config.gradle?.node?.detect ?: false
-    this.nodeVersion = config.gradle?.node?.version ?: '10.16.3'
+    this.nodeVersion = config.gradle?.node?.version ?: '12.19.0'
     this.npmConfig = config.gradle?.config;
     this.envVars = config.gradle?.env;
     this.semanticReleaseVersion = config.gradle?.semantic_release?.version ?: "17";

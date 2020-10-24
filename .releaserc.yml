@@ -11,7 +11,7 @@ gradle:
   semantic_release:
     version: 17
   node:
-    version: 10.16.3
+    version: 12.19.0
     detect: false # try to detect system node, if found skip download evaluation.
     download: true # download a node dist and use it, if it was not detected
     distUrl: https://nodejs.org/dist # dist download root url (default)
