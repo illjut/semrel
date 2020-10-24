@@ -1,3 +1,5 @@
+from recommonmark.parser import CommonMarkParser
+
 # for Sphinx-1.4 or newer
 extensions = ['recommonmark']
 
