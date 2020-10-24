@@ -20,3 +20,7 @@ jobs:
 
     - name: Build with Gradle
       run: gradle test build
+      env:
+        PUBLISH_USER: ${{ github.actor }}
+        REGISTRY_USER: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

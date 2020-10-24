@@ -19,10 +19,16 @@ jobs:
 
     - name: Build with Gradle
       run: gradle test build -is
+      env:
+        PUBLISH_USER: ${{ github.actor }}
+        REGISTRY_USER: ${{ github.actor }}
+        PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish to GitHub Packages
       run: gradle publish -is
       env:
         PUBLISH_USER: ${{ github.actor }}
+        REGISTRY_USER: ${{ github.actor }}
         PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
