@@ -3,7 +3,7 @@ from recommonmark.parser import CommonMarkParser
 # for Sphinx-1.4 or newer
 extensions = ['recommonmark']
 
-master_doc = "README.md"
+master_doc = "README"
 
 # for Sphinx-1.3
 #from recommonmark.parser import CommonMarkParser
