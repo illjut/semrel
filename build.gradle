@@ -75,9 +75,19 @@ publishing {
   }
 
   publications {
-    gpr(MavenPublication) {
+    mavenJava(MavenPublication) {
       artifactId = 'semrel'
       from components.java
+      artifact sourcesJar
+      artifact javadocJar
+      versionMapping {
+        usage('java-api') {
+          fromResolutionOf('runtimeClasspath')
+        }
+        usage('java-runtime') {
+          fromResolutionResult()
+        }
+      }
       pom {
         name = "Gradle Semantic Release"
         description = "semantic-release for gradle"
