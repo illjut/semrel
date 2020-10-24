@@ -2,8 +2,7 @@
 
 The plugin is configured using the semantic-release `.releaserc.yml` inside your repository.
 
-```yaml
-# example semantic-release configuration
+``` yaml
 branch: master
 plugins:
   - '@semantic-release/commit-analyzer'
@@ -11,8 +10,7 @@ plugins:
   - '@semantic-release/github'
 ci: false
 
-# gradle semrel configuration
-gradle:
+gradle: # gradle semrel configuration
   semantic_release:
     version: 17
   node:
