@@ -1,12 +1,19 @@
 buildscript {
   repositories {
+    maven {
+      url 'https://maven.pkg.github.com/illjut/semrel'
+      credentials {
+        username System.getenv("REGISTRY_USER") ?: "none"
+        password System.getenv("GITHUB_TOKEN") ?: "none"
+      }
+    }
     jcenter()
     maven { url 'https://dl.bintray.com/illjut/maven' }
     mavenLocal()
   }
 
   dependencies {
-    classpath group: 'de.illjut.gradle', name: 'semrel', version: project.findProperty('semrelVersion') ?: '1+'
+    classpath group: 'de.illjut.gradle', name: 'semrel', version: project.findProperty('semrelVersion') ?: '1.4.0'
     classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
   }
 }
