@@ -1,0 +1,25 @@
+name: Build Documentation
+
+on:
+  push:
+    branches:
+    - "master"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+          image: node:10.16-jessie
+
+    steps:
+      - name: Install Dependencies
+        run: pip install pipenv && pipenv install -d
+
+      - name: Build Documentation
+        run: pipenv run mkdocs build --clean
+
+      - name: Publish Docs
+        run: pipenv run mkdocs gh-deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
